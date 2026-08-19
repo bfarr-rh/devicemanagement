@@ -4,10 +4,6 @@
   vars:
     repo_dir: "/runner/project/devicedata"
   tasks:
-    - name: Configure Git credentials
-      ansible.builtin.shell: |
-        git config credential.helper store
-        printf "https://{{ git_username }}:{{ git_token }}@github.com\n" | git credential approve
     - name: Pull latest changes
       ansible.builtin.git:
         repo: "https://github.com/bfarr-rh/devicedata.git"
@@ -31,6 +27,10 @@
       failed_when:
       - git_commit.rc != 0
       - "'nothing to commit' not in git_commit.stdout"
+    - name: Configure Git credentials
+      ansible.builtin.shell: |
+        git config credential.helper store
+        printf "https://{{ git_username }}:{{ git_token }}@github.com\n" | git credential approve
     - name: Git push
       ansible.builtin.command:
         cmd: git push origin main
