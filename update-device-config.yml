@@ -1,12 +1,12 @@
 - name: Gather and local-save remote host facts
   hosts: all
   gather_facts: true  
+  vars:
+    repo_dir: "./devicedata"
   tasks:
     - name: Pull latest changes
       ansible.builtin.git:
         repo: "https://github.com/bfarr-rh/devicedata.git"
-        dest: "."
-        repo_dir: "./devicedata"
         version: main
         update: true
     - name: Save gathered facts to JSON files on the control node
