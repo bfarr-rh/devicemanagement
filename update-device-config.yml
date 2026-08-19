@@ -2,14 +2,13 @@
   hosts: all
   gather_facts: true  
   vars:
-    repo_dir: "./devicedata"
+    repo_dir: "/runner/project/devicedata"
   tasks:
     - name: Pull latest changes
       ansible.builtin.git:
         repo: "https://github.com/bfarr-rh/devicedata.git"
         version: master
-        dest: "."
-        update: true
+        dest: "{{ repo_dir }}"
     - name: Save gathered facts to JSON files on the control node
       ansible.builtin.copy:
         content: "{{ ansible_facts | to_nice_json }}"
