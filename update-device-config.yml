@@ -1,0 +1,17 @@
+- name: Gather and local-save remote host facts
+  hosts: all
+  gather_facts: true  
+  tasks:
+    - name: Ensure local fact storage directory exists on control node
+      ansible.builtin.file:
+        path: "/opt/ansible_facts/hosts"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+      run_once: true
+    - name: Save gathered facts to JSON files on the control node
+      ansible.builtin.copy:
+        content: "{{ ansible_facts | to_nice_json }}"
+        dest: "/opt/ansible_facts/hosts/{{ inventory_hostname }}_facts.json"
+        mode: '0644'
+      delegate_to: localhost
