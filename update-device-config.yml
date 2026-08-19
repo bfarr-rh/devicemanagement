@@ -6,7 +6,7 @@
   tasks:
     - name: Pull latest changes
       ansible.builtin.git:
-        repo: "https://github.com/bfarr-rh/devicedata.git"
+        repo: "https://{{ git_username }}:{{ git_token }}@github.com/bfarr-rh/devicedata.git"
         version: main
         dest: "{{ repo_dir }}"
     - name: Save gathered facts to JSON files on the control node
