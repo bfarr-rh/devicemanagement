@@ -7,9 +7,7 @@
     - name: Configure Git credentials
       ansible.builtin.shell: |
         git config credential.helper store
-        printf "https://{{ git_username }}:{{ git_token }}@github.com\n" \
-        | git credential approve
-      no_log: true
+        printf "https://{{ git_username }}:{{ git_token }}@github.com\n" | git credential approve
     - name: Pull latest changes
       ansible.builtin.git:
         repo: "https://github.com/bfarr-rh/devicedata.git"
