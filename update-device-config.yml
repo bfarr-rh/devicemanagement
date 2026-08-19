@@ -7,7 +7,7 @@
     - name: Pull latest changes
       ansible.builtin.git:
         repo: "https://github.com/bfarr-rh/devicedata.git"
-        version: master
+        version: main
         dest: "{{ repo_dir }}"
     - name: Save gathered facts to JSON files on the control node
       ansible.builtin.copy:
@@ -29,6 +29,6 @@
       - "'nothing to commit' not in git_commit.stdout"
     - name: Git push
       ansible.builtin.command:
-        cmd: git push origin master
+        cmd: git push origin main
         chdir: "{{ repo_dir }}"
       when: git_commit.rc == 0
