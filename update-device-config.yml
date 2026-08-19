@@ -3,7 +3,7 @@
   gather_facts: true  
   vars:
     repo_dir: "/runner/project/devicedata"
-    repo-pat: "https://{{ git_username }}:{{ git_token }}@://github.com/devicedata.git"
+    repo_pat: "https://{{ git_username }}:{{ git_token }}@://github.com/devicedata.git"
   tasks:
     - name: Pull latest changes
       ansible.builtin.git:
@@ -24,7 +24,7 @@
         chdir: "{{ repo_dir }}"
     - name: Configure Git credentials
       ansible.builtin.shell: |
-        git remote set-url origin {{ repo-pat }}
+        git remote set-url origin {{ repo_pat }}
       args:
         chdir: "{{ repo_dir }}"
     - name: Configure Git credentials name
