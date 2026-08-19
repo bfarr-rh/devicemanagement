@@ -19,6 +19,7 @@
       ansible.builtin.shell: |
         git config credential.helper store
         printf "protocol=https\nhost=github.com\nusername={{ git_username }}\npassword={{ git_token }}\n" | git credential approve
+        git config --global {{ git_username }}
       args:
         chdir: "{{ repo_dir }}"
     - name: Git add
