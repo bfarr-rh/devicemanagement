@@ -15,6 +15,12 @@
         dest: "{{ repo_dir }}/{{ inventory_hostname }}_facts.json"
         mode: '0644'
       delegate_to: localhost
+    - name: Configure Git credentials
+      ansible.builtin.shell: |
+        git config credential.helper store
+        printf "https://{{ git_username }}:{{ git_token }}@github.com\n" | git credential approve
+      args:
+        chdir: "{{ repo_dir }}"
     - name: Git add
       ansible.builtin.command:
         cmd: git add .
@@ -27,10 +33,6 @@
       failed_when:
       - git_commit.rc != 0
       - "'nothing to commit' not in git_commit.stdout"
-    - name: Configure Git credentials
-      ansible.builtin.shell: |
-        git config credential.helper store
-        printf "https://{{ git_username }}:{{ git_token }}@github.com\n" | git credential approve
     - name: Git push
       ansible.builtin.command:
         cmd: git push origin main
