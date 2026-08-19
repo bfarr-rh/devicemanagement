@@ -51,7 +51,7 @@
       delegate_to: localhost
     - name: Git push
       ansible.builtin.command:
-        cmd: git push origin main
+        cmd: git push ttps://{{ git_username }}:{{ git_token }}@://github.com/devicedata.git main
         chdir: "{{ repo_dir }}"
       when: git_commit.rc == 0
       delegate_to: localhost
