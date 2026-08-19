@@ -24,7 +24,7 @@
       delegate_to: localhost
     - name: Configure Git credentials
       ansible.builtin.shell: |
-        git remote set-url origin "https://{{ git_username }}:{{ git_token }}@://github.com/devicedata.git"
+        git remote set-url origin https://{{ git_username }}:{{ git_token }}@://github.com/devicedata.git
       args:
         chdir: "{{ repo_dir }}"
       delegate_to: localhost
