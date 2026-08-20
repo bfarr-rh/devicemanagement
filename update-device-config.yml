@@ -69,7 +69,7 @@
       delegate_to: localhost
     - name: Push the timestamped tag to origin
       ansible.builtin.command:
-        cmd: "git push git push https://{{ git_username }}:{{ git_token }}@github.com/bfarr-rh/devicedata.git {{ version_prefix }}-{{ ansible_date_time.iso8601_basic_short }}"
+        cmd: "git push https://{{ git_username }}:{{ git_token }}@github.com/bfarr-rh/devicedata.git {{ version_prefix }}-{{ ansible_date_time.iso8601_basic_short }}"
         chdir: "{{ repo_dir }}"
       changed_when: true
       delegate_to: localhost
