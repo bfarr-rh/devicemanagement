@@ -1,0 +1,10 @@
+# Configuration Table of Contents
+
+{% for group in groups %}
+## {{ group }}
+
+{% for host in groups[group] %}
+- [{{ host }}]({{ group }}/{{ host }}/config.json)
+{% endfor %}
+
+{% endfor %}
