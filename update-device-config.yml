@@ -10,16 +10,22 @@
         repo: "https://github.com/bfarr-rh/devicedata.git"
         version: main
         dest: "{{ repo_dir }}"
+    - name: Create configuration directory
+      ansible.builtin.file:
+        path: "{{ repo_dir }}"/"{{ group_names[0] }}/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
     - name: Save gathered facts to JSON files on the control node
       ansible.builtin.copy:
         content: "{{ ansible_facts | to_nice_json }}"
-        dest: "{{ repo_dir }}/{{ inventory_hostname }}_facts.json"
+        dest:  "{{ repo_dir }}"/"{{ group_names[0] }}/{{ inventory_hostname }}/config.json"
         mode: '0644'
       delegate_to: localhost
     - name: Create configuration
       ansible.builtin.template:
         src: templates/localhost_facts_md.j2
-        dest: "{{ repo_dir }}/{{ inventory_hostname }}_facts.md"
+        dest: "{{ repo_dir }}"/"{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}_facts.md"
       delegate_to: localhost
     - name: Configure Git credentials
       ansible.builtin.shell: |
