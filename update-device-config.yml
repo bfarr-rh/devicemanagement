@@ -60,7 +60,7 @@
         chdir: "{{ repo_dir }}"
       when: git_commit.rc == 0
       delegate_to: localhost
-     - name: Generate timestamp and create the git tag
+    - name: Generate timestamp and create the git tag
       ansible.builtin.command:
         cmd: "git tag {{ version_prefix }}-{{ ansible_date_time.iso8601_basic_short }}"
         chdir: "{{ repo_dir }}"
