@@ -3,6 +3,7 @@
   gather_facts: true  
   vars:
     repo_dir: "/runner/project/devicedata"
+    version_prefix: "v1.0.0"
   tasks:
     - name: Pull latest changes
       ansible.builtin.git:
