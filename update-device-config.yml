@@ -15,7 +15,6 @@
         dest: "{{ repo_dir }}/{{ inventory_hostname }}_facts.json"
         mode: '0644'
       delegate_to: localhost
-      tasks:
     - name: Create configuration
       ansible.builtin.template:
         src: templates/localhost_facts_md.j2
