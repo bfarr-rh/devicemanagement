@@ -1,0 +1,93 @@
+# System Facts Report
+
+## System Information
+- **Architecture:** {{ ansible_facts.architecture }}
+- **BIOS Vendor:** {{ ansible_facts.bios_vendor }}
+- **BIOS Version:** {{ ansible_facts.bios_version }}
+- **BIOS Date:** {{ ansible_facts.bios_date }}
+- **Board Name:** {{ ansible_facts.board_name }}
+- **Board Vendor:** {{ ansible_facts.board_vendor }}
+- **Board Version:** {{ ansible_facts.board_version }}
+- **Chassis Vendor:** {{ ansible_facts.chassis_vendor }}
+- **Chassis Version:** {{ ansible_facts.chassis_version }}
+- **AppArmor Status:** {{ ansible_facts.apparmor.status }}
+
+## Date & Time
+- **Date:** {{ ansible_facts.date_time.date }}
+- **Time:** {{ ansible_facts.date_time.time }} {{ ansible_facts.date_time.tz }}
+- **ISO 8601:** {{ ansible_facts.date_time.iso8601 }}
+- **Weekday:** {{ ansible_facts.date_time.weekday }}
+- **Epoch:** {{ ansible_facts.date_time.epoch }}
+- **Timezone:** {{ ansible_facts.date_time.tz_offset }}
+
+## Kernel Configuration
+{%- set cmdline = ansible_facts.cmdline %}
+- **Boot Image:** {{ cmdline.BOOT_IMAGE }}
+- **Platform ID:** {{ cmdline['ignition.platform.id'] }}
+- **First Boot:** {{ cmdline['ignition.firstboot'] }}
+- **OSTree:** {{ cmdline.ostree }}
+- **Cgroup:** {{ cmdline.cgroup_no_v1 }}
+- **Unified Cgroup Hierarchy:** {{ cmdline['systemd.unified_cgroup_hierarchy'] }}
+- **PSI:** {{ cmdline.psi }}
+
+## Block Devices
+
+### Loop Devices
+{%- for device_name, device_info in ansible_facts.devices.items() %}
+{%- if device_name.startswith('loop') %}
+#### {{ device_name }}
+- **Size:** {{ device_info.size }}
+- **Sectors:** {{ device_info.sectors }}
+- **Sector Size:** {{ device_info.sectorsize }}
+- **Rotational:** {{ device_info.rotational }}
+- **Support Discard:** {{ device_info.support_discard }}
+{%- endif %}
+{%- endfor %}
+
+### NBD Devices
+{%- set nbd_count = 0 %}
+{%- for device_name, device_info in ansible_facts.devices.items() %}
+{%- if device_name.startswith('nbd') %}
+{%- set nbd_count = nbd_count + 1 %}
+{%- endif %}
+{%- endfor %}
+Total NBD devices: {{ nbd_count }} (all empty/0 bytes)
+
+### RADOS Block Devices (RBD)
+{%- for device_name, device_info in ansible_facts.devices.items() | sort %}
+{%- if device_name.startswith('rbd') %}
+#### {{ device_name }}
+- **Size:** {{ device_info.size }}
+- **Sectors:** {{ device_info.sectors }}
+- **Sector Size:** {{ device_info.sectorsize }}
+- **Scheduler Mode:** {{ device_info.scheduler_mode }}
+{%- if device_info.partitions %}
+- **Partitions:**
+{%- for partition_name, partition_info in device_info.partitions.items() %}
+  - {{ partition_name }}: {{ partition_info.size }} ({{ partition_info.sectors }} sectors, starts at {{ partition_info.start }})
+{%- endfor %}
+{%- endif %}
+{%- endif %}
+{%- endfor %}
+
+### CD/DVD Devices
+{%- for device_name, device_info in ansible_facts.devices.items() %}
+{%- if device_name.startswith('sr') %}
+#### {{ device_name }}
+- **Vendor:** {{ device_info.vendor }}
+- **Model:** {{ device_info.model }}
+- **Size:** {{ device_info.size }}
+- **Sectors:** {{ device_info.sectors }}
+- **Sector Size:** {{ device_info.sectorsize }}
+- **Removable:** {{ device_info.removable }}
+{%- endif %}
+{%- endfor %}
+
+## Device Links
+- **IDs:** {{ ansible_facts.device_links.ids | length }} entries
+- **Labels:** {{ ansible_facts.device_links.labels | length }} entries
+- **Masters:** {{ ansible_facts.device_links.masters | length }} entries
+- **UUIDs:** {{ ansible_facts.device_links.uuids | length }} entries
+
+---
+*Report generated from Ansible facts gathered on {{ ansible_facts.date_time.iso8601 }}*
