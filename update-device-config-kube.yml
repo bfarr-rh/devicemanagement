@@ -1,6 +1,6 @@
 - name: Gather and local-save remote host facts
   hosts: all
-  gather_facts: true  
+  gather_facts: false
   vars:
     repo_dir: "/runner/project/devicedata"
     version_prefix: "v1.0.0"
