@@ -5,6 +5,9 @@
     repo_dir: "/runner/project/devicedata"
     version_prefix: "v1.0.0"
   tasks:
+    - name: Test Python
+      ansible.builtin.command: python3 --version
+      delegate_to: localhost
     - name: Pull latest changes
       ansible.builtin.git:
         repo: "https://github.com/bfarr-rh/devicedata.git"
