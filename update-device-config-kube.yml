@@ -1,3 +1,15 @@
+- name: Check ncclient
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Show ncclient version
+      ansible.builtin.command:
+        cmd: python -c "import ncclient; print(ncclient.__version__)"
+      register: ncclient_version
+      changed_when: false
+
+    - debug:
+        var: ncclient_version.stdout
 - name: Gather and local-save remote host facts
   hosts: srlinux
   gather_facts: false
