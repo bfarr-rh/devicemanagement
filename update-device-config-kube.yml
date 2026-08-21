@@ -8,6 +8,12 @@
     - name: Test Python
       ansible.builtin.command: python3 --version
       delegate_to: localhost
+    - name: Get SR Linux facts
+      nokia.srlinux.get_facts:
+      register: srlinux_facts
+    - name: Display facts
+      ansible.builtin.debug:
+        var: srlinux_facts
     - name: Pull latest changes
       ansible.builtin.git:
         repo: "https://github.com/bfarr-rh/devicedata.git"
