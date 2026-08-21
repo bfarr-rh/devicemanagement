@@ -8,13 +8,14 @@
     - name: Test Python
       ansible.builtin.command: python3 --version
       delegate_to: localhost
-    - name: Get running configuration
+    - name: Retrieve running configuration
       ansible.netcommon.netconf_get:
         source: running
-      register: running_config
-    - name: Display configuration
+        display: xml
+      register: config
+    - name: Show configuration
       ansible.builtin.debug:
-        var: running_config.output
+        var: config.output
     - name: Pull latest changes
       ansible.builtin.git:
         repo: "https://github.com/bfarr-rh/devicedata.git"
