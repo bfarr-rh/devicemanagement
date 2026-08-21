@@ -5,6 +5,18 @@
     repo_dir: "/runner/project/devicedata"
     version_prefix: "v1.0.0"
   tasks:
+    - name: Show netcommon version
+      ansible.builtin.command:
+        cmd: ansible-galaxy collection list ansible.netcommon
+      register: result
+    - debug:
+        var: result.stdout
+    - name: Show Nokia collection
+      ansible.builtin.command:
+        cmd: ansible-galaxy collection list nokia.srlinux
+      register: result
+    - debug:
+        var: result.stdout
     - name: Retrieve running configuration
       ansible.netcommon.netconf_get:
         source: running
