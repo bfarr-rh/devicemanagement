@@ -7,9 +7,9 @@
   tasks:
      - name: Fetch the full running configuration
        nokia.srlinux.srv_config:
-        action: get
-        path: /  # Reaching the root node fetches the complete tree
-      register: srl_config_output
+         action: get
+         path: /  # Reaching the root node fetches the complete tree
+       register: srl_config_output
     - name: Show response
       ansible.builtin.debug:
         var: srl_config_output
