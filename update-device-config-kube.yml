@@ -1,5 +1,5 @@
 - name: Gather and local-save remote host facts
-  hosts: all
+  hosts: srlinux
   gather_facts: false
   vars:
     repo_dir: "/runner/project/devicedata"
