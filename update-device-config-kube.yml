@@ -5,17 +5,19 @@
     repo_dir: "/runner/project/devicedata"
     version_prefix: "v1.0.0"
   tasks:
-    - name: Test Python
-      ansible.builtin.command: python3 --version
-      delegate_to: localhost
     - name: Retrieve running configuration
       ansible.netcommon.netconf_get:
         source: running
         display: xml
       register: config
+    - name: Save configuration
+      ansible.builtin.copy:
+        content: "{{ config.output }}"
+        dest: "/tmp/{{ inventory_hostname }}-config.xml"
+      delegate_to: localhost
     - name: Show configuration
       ansible.builtin.debug:
-        var: config.output
+        msg: "{{ config.output }}"
     - name: Pull latest changes
       ansible.builtin.git:
         repo: "https://github.com/bfarr-rh/devicedata.git"
