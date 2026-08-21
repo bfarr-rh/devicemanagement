@@ -6,7 +6,7 @@
     version_prefix: "v1.0.0"
   tasks:
      - name: Fetch the full running configuration
-      nokia.srlinux.srv_config:
+       nokia.srlinux.srv_config:
         action: get
         path: /  # Reaching the root node fetches the complete tree
       register: srl_config_output
