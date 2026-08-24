@@ -42,6 +42,10 @@
         mode: '0644'
       delegate_to: localhost
       connection: local
+    - name: Run git diff for target file in main against baseline branch
+      ansible.builtin.shell:
+        cmd: "git diff {{ baseline_branch }} -- {{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.xml | jq -R -s '{diff: .}' > {{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.json"
+      changed_when: false
     - name: Ensure all previous tasks finish on all hosts
       ansible.builtin.meta: flush_handlers
     - name: Generate table of contents
