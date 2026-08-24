@@ -4,6 +4,7 @@
   vars:
     repo_dir: "/runner/project/devicedata"
     version_prefix: "v1.0.0"
+    baseline_branch: "baseline"
   tasks:
     - name: Pull latest changes
       ansible.builtin.git:
@@ -46,6 +47,8 @@
       ansible.builtin.shell:
         cmd: "git diff {{ baseline_branch }} -- {{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.xml | jq -R -s '{diff: .}' > {{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.json"
       changed_when: false
+      delegate_to: localhost
+      connection: local
     - name: Ensure all previous tasks finish on all hosts
       ansible.builtin.meta: flush_handlers
     - name: Generate table of contents
