@@ -24,12 +24,14 @@
         version: main
         dest: "{{ repo_dir }}"
       delegate_to: localhost
+      run_once: true
     - name: Create configuration directory
       ansible.builtin.file:
         path: "{{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}"
         state: directory
         mode: '0755'
       delegate_to: localhost
+      run_once: true
     - name: Save gathered facts to JSON files on the control node
       ansible.builtin.copy:
         content: "{{ config.output }}"
