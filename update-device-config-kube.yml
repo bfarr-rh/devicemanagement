@@ -10,6 +10,7 @@
         repo: "https://github.com/bfarr-rh/devicedata.git"
         version: main
         dest: "{{ repo_dir }}"
+        validate_certs: false
       delegate_to: localhost
       run_once: true
     - name: Retrieve running configuration
