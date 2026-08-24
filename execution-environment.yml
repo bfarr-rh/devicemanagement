@@ -12,6 +12,10 @@ dependencies:
     python_path: /usr/bin/python3.12
 additional_build_steps:
   prepend_base:
+    - USER root
+    - RUN microdnf reinstall -y ca-certificates && microdnf clean all
+    - RUN chmod -R +r /etc/pki/tls/certs/
+    - USER 1001
     - RUN microdnf install -y gcc python3.12 python3.12-devel systemd-devel && microdnf clean all
     - RUN whoami
     - RUN cat /etc/os-release
