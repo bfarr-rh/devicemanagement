@@ -4,7 +4,7 @@
 ## {{ group }}
 
 {% for host in groups[group] %}
-- [{{ host }}]({{ group }}/{{ host }}/{{ inventory_hostname }}-config.xml)
+- [{{ host }}]({{ group }}/{{ host }}/{{ host }}-config.xml)
 {% endfor %}
 
 {% endfor %}
