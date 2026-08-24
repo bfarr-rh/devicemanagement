@@ -13,24 +13,28 @@
       environment:
         GIT_SSL_NO_VERIFY: "true"
       delegate_to: localhost
+      connection: local
       run_once: true
     - name: Retrieve running configuration
       ansible.netcommon.netconf_get:
         source: running
         display: xml
       register: config_raw
-    - name: Pretty print and save XML to a new variable
+    - name: Pretty print XML using local system tools
+      ansible.builtin.shell: "echo '{{ config_raw.output }}' | xmllint --format -"
+      delegate_to: localhost
+      connection: local
+      register: local_xml
+    - name: Save formatted XML
       ansible.builtin.set_fact:
-        config: "{{ config_raw.output | ansible.utils.xml_format }}"
-    - name: Show configuration
-      ansible.builtin.debug:
-        msg: "{{ config.output }}"
+        config: "{{ local_xml.stdout }}"
     - name: Create configuration directory
       ansible.builtin.file:
         path: "{{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}"
         state: directory
         mode: '0755'
       delegate_to: localhost
+      connection: local
     - name: Save gathered facts to JSON files on the control node
       ansible.builtin.copy:
         content: "{{ config.output }}"
