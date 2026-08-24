@@ -45,8 +45,15 @@
       connection: local
     - name: Run git diff for target file in main against baseline branch
       ansible.builtin.shell:
-        cmd: "git diff {{ baseline_branch }} -- {{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.xml | jq -R -s '{diff: .}' > {{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.json"
+        cmd: "git diff {{ baseline_branch }} -- {{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.xml"
       changed_when: false
+      register: git_diff_result
+      delegate_to: localhost
+      connection: local
+    - name: Save the diff output into a structured JSON file
+      copy:
+        content: "{{ {'diff': git_diff_result.stdout} | to_nice_json }}"
+        dest: "{{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.json"
       delegate_to: localhost
       connection: local
     - name: Ensure all previous tasks finish on all hosts
