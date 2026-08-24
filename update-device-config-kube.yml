@@ -84,15 +84,22 @@
         chdir: "{{ repo_dir }}"
       when: git_commit.rc == 0
       delegate_to: localhost
+    - name: Define the version string variable
+      ansible.builtin.set_fact:
+        full_version: "{{ version_prefix }}-{{ now(fmt='%Y-%m-%d %H:%M:%S') }}"
+      delegate_to: localhost
+      run_once: true
     - name: Generate timestamp and create the git tag
       ansible.builtin.command:
-        cmd: "git tag {{ version_prefix }}-{{ ansible_date_time.iso8601_basic_short }}"
+        cmd: "git tag {{ full_version }}"
         chdir: "{{ repo_dir }}"
       changed_when: true
+      run_once: true
       delegate_to: localhost
     - name: Push the timestamped tag to origin
       ansible.builtin.command:
-        cmd: "git push https://{{ git_username }}:{{ git_token }}@github.com/bfarr-rh/devicedata.git {{ version_prefix }}-{{ ansible_date_time.iso8601_basic_short }}"
+        cmd: "git push https://{{ git_username }}:{{ git_token }}@github.com/bfarr-rh/devicedata.git {{ full_version }}"
         chdir: "{{ repo_dir }}"
       changed_when: true
       delegate_to: localhost
+      run_once: true
