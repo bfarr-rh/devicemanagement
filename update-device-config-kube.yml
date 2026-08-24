@@ -19,11 +19,6 @@
         source: running
         display: xml
       register: config
-    - name: Save configuration
-      ansible.builtin.copy:
-        content: "{{ config.output }}"
-        dest: "/tmp/{{ inventory_hostname }}-config.xml"
-      delegate_to: localhost
     - name: Show configuration
       ansible.builtin.debug:
         msg: "{{ config.output }}"
