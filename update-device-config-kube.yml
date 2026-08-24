@@ -5,7 +5,7 @@
     repo_dir: "/runner/project/devicedata"
     version_prefix: "v1.0.0"
   tasks:
-     - name: Pull latest changes
+    - name: Pull latest changes
       ansible.builtin.git:
         repo: "https://github.com/bfarr-rh/devicedata.git"
         version: main
