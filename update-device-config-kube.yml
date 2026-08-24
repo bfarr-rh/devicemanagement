@@ -18,7 +18,10 @@
       ansible.netcommon.netconf_get:
         source: running
         display: xml
-      register: config
+      register: config_raw
+    - name: Pretty print and save XML to a new variable
+      ansible.builtin.set_fact:
+        config: "{{ config_raw.output | ansible.utils.xml_format }}"
     - name: Show configuration
       ansible.builtin.debug:
         msg: "{{ config.output }}"
