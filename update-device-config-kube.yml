@@ -86,7 +86,7 @@
       delegate_to: localhost
     - name: Define the version string variable
       ansible.builtin.set_fact:
-        full_version: "{{ version_prefix }}-{{ now(fmt='%Y-%m-%d %H:%M:%S') }}"
+        full_version: "{{ version_prefix }}-{{ now(fmt='%Y-%m-%d %H%M%S') }}"
       delegate_to: localhost
       run_once: true
     - name: Generate timestamp and create the git tag
