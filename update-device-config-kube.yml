@@ -39,11 +39,6 @@
         dest:  "{{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.xml"
         mode: '0644'
       delegate_to: localhost
-    - name: Create configuration
-      ansible.builtin.template:
-        src: templates/localhost_facts_md.j2
-        dest: "{{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}_facts.md"
-      delegate_to: localhost
     - name: Generate table of contents
       ansible.builtin.template:
         src: templates/toc_md.j2
