@@ -57,6 +57,8 @@
     - name: Run git diff for target file in main against baseline branch
       ansible.builtin.shell:
         cmd: "git diff {{ baseline_branch }} -- {{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.xml"
+      args:
+        chdir: "{{ repo_dir }}"
       changed_when: false
       register: git_diff_result
       delegate_to: localhost
