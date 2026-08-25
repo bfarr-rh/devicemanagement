@@ -54,20 +54,16 @@
       register: git_diff_result
       delegate_to: localhost
       connection: local
-    - name: Send event to Kafka via REST Proxy
-      ansible.builtin.uri:
-        url: "http://kafka-bridge-kafka.apps.sno.int.apac-tech-lab.net/topics/{{ target_kafka_topic }}"
-        method: POST
-        body_format: json
-        status_code: 
-          - 200
-          - 204 
-        headers:
-          Content-Type: "application/vnd.kafka.json.v2+json"
-          Accept: "application/vnd.kafka.v2+json"
-        validate_certs: false
-        ca_path: "" 
-        body:
+    - name: Send event to Kafka via REST Proxy (curl)
+      ansible.builtin.shell:
+        cmd: >
+          curl -X POST
+          -H "Content-Type: application/vnd.kafka.json.v2+json"
+          -H "Accept: application/vnd.kafka.v2+json"
+          -d '{{ kafka_payload | to_json }}'
+          "http://kafka-bridge-kafka.apps.sno.int.apac-tech-lab.net/topics/{{ target_kafka_topic }}"
+      vars:
+        kafka_payload:
           records:
             - value:
                 host: "{{ inventory_hostname }}"
@@ -75,6 +71,7 @@
       delegate_to: localhost
       connection: local
       when: git_diff_result.rc == 1
+      register: kafka_curl_output
     - name: Save the diff output into a structured JSON file
       ansible.builtin.copy:
         content: "{{ json_output | to_nice_json }}"
