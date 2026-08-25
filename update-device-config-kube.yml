@@ -66,8 +66,11 @@
         kafka_payload:
           records:
             - value:
+                datetime: "{{ now(fmt='%Y-%m-%d-%H:%M:%S') }}"
+                group: "{{ group_names[0] }}"
                 host: "{{ inventory_hostname }}"
                 event: "CRITICAL - Configuration does not batch baseline"
+                diff: "{{ git_diff_result.stdout.split('\n') }}"
       delegate_to: localhost
       connection: local
       when: git_diff_result.rc == 1
