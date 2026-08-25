@@ -1,6 +1,7 @@
 # Configuration Table of Contents
 
 {% for group in groups %}
+{% if group not in ['all', 'local', 'ungrouped'] %}
 ## {{ group }}
 
 {% for host in groups[group] %}
@@ -22,5 +23,6 @@
 {% endif %}
 
 {% endfor %}
+{% endif %}
 {% endfor %}
 
