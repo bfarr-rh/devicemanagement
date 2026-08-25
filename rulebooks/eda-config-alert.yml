@@ -12,7 +12,7 @@
           Accept: "application/vnd.kafka.json.v2+json"
   rules:
     - name: Debug print all raw events
-      condition: event.message.event is defined
+      condition: true
       action:
         debug:
           msg: "{{ event }}"  # <-- Natively exposes the entire structured payload
