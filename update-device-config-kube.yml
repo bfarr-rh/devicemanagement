@@ -5,6 +5,7 @@
     repo_dir: "/runner/project/devicedata"
     version_prefix: "v1.0.0"
     baseline_branch: "baseline"
+    target_kafka_topic: "config-alerts"
   tasks:
     - name: Pull latest changes
       ansible.builtin.git:
@@ -55,10 +56,12 @@
       connection: local
     - name: Send event to Kafka via REST Proxy
       ansible.builtin.uri:
-        url: "https://kafka-bridge-kafka.apps.sno.int.apac-tech-lab.net"
+        url: "https://kafka-bridge-kafka.apps.sno.int.apac-tech-lab.net/{{ target_kafka_topic }}"
         method: POST
         body_format: json
-        status_code: 200
+        status_code: 
+          - 200
+          - 204 
         headers:
           Content-Type: "application/vnd.kafka.json.v2+json"
           Accept: "application/vnd.kafka.v2+json"
@@ -67,8 +70,6 @@
             - value:
                 host: "{{ inventory_hostname }}"
                 event: "CRITICAL - Configuration does not batch baseline"
-        vars:
-          target_kafka_topic: "config-alerts"
       delegate_to: localhost
       connection: local
       when: git_diff_result.rc == 1
