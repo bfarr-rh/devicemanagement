@@ -53,7 +53,7 @@
       delegate_to: localhost
       connection: local
     - name: Save the diff output into a structured JSON file
-     ansible.builtin.copy:
+      ansible.builtin.copy:
         content: "{{ json_output | to_nice_json }}"
         dest: "{{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.json"
       vars:
