@@ -2,7 +2,7 @@
 - name: Listen for Configuration Alerts from Kafka
   hosts: all
   sources:
-    - name: Get messages from Kafka
+    - name: Config Alert Changes via Kafka topic
       ansible.eda.kafka:
         host: kafka-kafka-bootstrap.kafka.svc.cluster.local
         port: 9092
