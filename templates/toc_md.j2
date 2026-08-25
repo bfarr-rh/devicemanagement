@@ -7,7 +7,7 @@
 - [{{ host }}]({{ group }}/{{ host }}/{{ host }}-config.xml)
 
 {% set file_path = group ~ '/' ~ host ~ '/' ~ host ~ '-config.json' %}
-{% if lookup('ansible.builtin.fileglob', file_path) %}
+{% if file_path is exists %}
 {% set diff_data = lookup('file', file_path) | from_json %}
 {% if diff_data.diff | length > 0 %}
 ## Changed
