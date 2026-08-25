@@ -7,8 +7,8 @@
 - [{{ host }}]({{ group }}/{{ host }}/{{ host }}-config.xml)
 
 {% set file_path = group ~ '/' ~ host ~ '/' ~ host ~ '-config.json' %}
-{% if file_path is exists %}
-{% set diff_data = lookup('file', file_path) | from_json %}
+
+{% set diff_data = lookup('file', file_path, errors='ignore')) | default('{"diff": []}' | from_json %}
 {% if diff_data.diff | length > 0 %}
 ## Changed
 {% for line in diff_data.diff %}
@@ -18,8 +18,9 @@
 * 🟩 `{{ line[1:] }}`
 {% endif %}
 {% endfor %}
+
 {% endif %}
-{% endif %}
+
 {% endfor %}
 {% endfor %}
 
