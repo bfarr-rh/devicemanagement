@@ -5,6 +5,16 @@
 
 {% for host in groups[group] %}
 - [{{ host }}]({{ group }}/{{ host }}/{{ host }}-config.xml)
+
+{% set diff_data = lookup('file', '{{ group }}/{{ host }}/{{ host }}-config.json') | from_json %}
+{% if diff_data.diff | length > 0 %}
+## Changed
+{% for line in diff_data.diff %}
+{% if line.startswith('-') and not line.startswith('---') %}
+* 🟥 ~~`{{ line[1:] }}`~~
+{% elif line.startswith('+') and not line.startswith('+++') %}
+* 🟩 `{{ line[1:] }}`
+{% endif %}
+{% endif %}
 {% endfor %}
 
-{% endfor %}
