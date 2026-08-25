@@ -45,13 +45,33 @@
       connection: local
     - name: Run git diff for target file in main against baseline branch
       ansible.builtin.shell:
-        cmd: "git diff origin/{{ baseline_branch }} -- {{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.xml"
+        cmd: "git diff --exit-code origin/{{ baseline_branch }} -- {{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.xml"
       args:
         chdir: "{{ repo_dir }}"
-      changed_when: false
+      failed_when: git_diff_status.rc not in [0, 1]
+      changed_when: git_diff_status.rc == 1
       register: git_diff_result
       delegate_to: localhost
       connection: local
+    - name: Send event to Kafka via REST Proxy
+      ansible.builtin.uri:
+        url: "https://kafka-bridge-kafka.apps.sno.int.apac-tech-lab.net"
+        method: POST
+        body_format: json
+        status_code: 200
+        headers:
+          Content-Type: "application/vnd.kafka.json.v2+json"
+          Accept: "application/vnd.kafka.v2+json"
+        body:
+          records:
+            - value:
+                host: "{{ inventory_hostname }}"
+                event: "CRITICAL - Configuration does not batch baseline"
+        vars:
+          target_kafka_topic: "config-alerts"
+      delegate_to: localhost
+      connection: local
+      when: git_diff_status.rc == 1
     - name: Save the diff output into a structured JSON file
       ansible.builtin.copy:
         content: "{{ json_output | to_nice_json }}"
