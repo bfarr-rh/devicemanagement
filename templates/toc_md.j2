@@ -8,7 +8,8 @@
 
 {% set file_path = group ~ '/' ~ host ~ '/' ~ host ~ '-config.json' %}
 
-{% set diff_data = lookup('file', file_path, errors='ignore') | default('{"diff": []}') | from_json %}
+{% set raw_content = lookup('ansible.builtin.file', file_path, errors='ignore') | default('{"diff": []}', true) %}
+{% set diff_data = raw_content | from_json %}
 {% if diff_data.diff | length > 0 %}
 ## Changed
 {% for line in diff_data.diff %}
