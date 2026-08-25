@@ -2,18 +2,15 @@
 - name: Listen for Configuration Alerts from Kafka
   hosts: all
   sources:
-    - ansible.eda.url_check:
-        # Calls the Kafka Bridge consumer endpoint
-        urls:
-          - "http://kafka-bridge-kafka.apps.sno.int.apac-tech-lab.net/topics/config-alerts"
-        delay: 10  # Polls every 5 seconds
-        status_code: [200]
-        method: GET
-        headers:
-          Accept: "application/vnd.kafka.json.v2+json"
+    - name: Get messages from Kafka
+      ansible.eda.kafka:
+        host: kafka-kafka-bootstrap.kafka.svc.cluster.local
+        port: 9092
+        topic: config-alerts
+        group_id: eda-consumer-group
   rules:
     - name: Debug print all raw events
-      condition: event.message is defined
+      condition: event.payload.message is defined
       action:
         debug:
-          msg: "{{ event.message }}"  # <-- Natively exposes the entire structured payload
+          msg: "{{ event.payload.message }}"  # <-- Natively exposes the entire structured payload
