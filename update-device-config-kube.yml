@@ -54,7 +54,7 @@
       connection: local
     - name: Save the diff output into a structured JSON file
       copy:
-        content: "{{ {'datetime': now(fmt='%Y-%m-%d-%H:%M:%S'), 'diff': git_diff_result.stdout.split('\n')} | to_nice_json }}"
+        content: "{{ {'datetime': now(fmt='%Y-%m-%d-%H:%M:%S'), 'group': group_names[0], 'host': inventory_hostname, diff': git_diff_result.stdout.split('\n')} | to_nice_json }}"
         dest: "{{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.json"
       delegate_to: localhost
       connection: local
