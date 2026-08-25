@@ -53,9 +53,15 @@
       delegate_to: localhost
       connection: local
     - name: Save the diff output into a structured JSON file
-      copy:
-        content: "{{ {'datetime': now(fmt='%Y-%m-%d-%H:%M:%S'), 'group': group_names[0], 'host': inventory_hostname, diff': git_diff_result.stdout.split('\n')} | to_nice_json }}"
+     ansible.builtin.copy:
+        content: "{{ json_output | to_nice_json }}"
         dest: "{{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.json"
+      vars:
+        json_output:
+          datetime: "{{ now(fmt='%Y-%m-%d-%H:%M:%S') }}"
+          group: "{{ group_names[0] }}"
+          host: "{{ inventory_hostname }}"
+          diff: "{{ git_diff_result.stdout.split('\n') }}"
       delegate_to: localhost
       connection: local
     - name: Ensure all previous tasks finish on all hosts
