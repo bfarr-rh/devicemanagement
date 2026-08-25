@@ -74,6 +74,9 @@
                 event: "CRITICAL - Configuration does not batch baseline"
       delegate_to: localhost
       connection: local
+      # Force Python to bypass strict X509 checks
+      environment:
+        PYTHONHTTPSVERIFY: "0"
       when: git_diff_result.rc == 1
     - name: Save the diff output into a structured JSON file
       ansible.builtin.copy:
