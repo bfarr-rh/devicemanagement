@@ -7,12 +7,16 @@
         urls:
           - "http://kafka-bridge-kafka.apps.sno.int.apac-tech-lab.net/topics/config-alerts"
         delay: 10  # Polls every 5 seconds
+        status_code: [200]
         method: GET
         headers:
           Accept: "application/vnd.kafka.json.v2+json"
   rules:
     - name: Debug print all raw events
-      condition: true
+      condition: >
+        event.url_check.status == "up" and 
+        event.url_check.body is defined and 
+        event.url_check.body | length > 0
       action:
         debug:
-          msg: "{{ event }}"  # <-- Natively exposes the entire structured payload
+          msg: "{{ event.url_check.body }}"  # <-- Natively exposes the entire structured payload
