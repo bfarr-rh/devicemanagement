@@ -6,10 +6,7 @@
 | Host / Device | Configuration Line Changes |
 | :--- | :--- |
 {% for host in groups[group] %}
-- [{{ host }}]({{ group }}/{{ host }}/{{ host }}-config.xml)
-
 {% set file_path = 'devicedata' ~ '/' ~ group ~ '/' ~ host ~ '/' ~ host ~ '-config.json' %}
-
 {% set raw_content = lookup('ansible.builtin.file', file_path, errors='ignore') | default('{"diff": []}', true) %}
 {% set diff_data = raw_content | from_json %}
 | [{{ host }}]({{ group }}/{{ host }}/{{ host }}-config.xml) | {% if diff_data.diff | length > 0 %}{% for line in diff_data.diff %}{% if line.startswith('-') and not line.startswith('---') %}🟥 ~~`{{ line[1:] | replace('|', '\|') }}`~~<br>{% elif line.startswith('+') and not line.startswith('+++') %}🟩 `{{ line[1:] | replace('|', '\|') }}`<br>{% endif %}{% endfor %}{% else %}No changes{% endif %} |
