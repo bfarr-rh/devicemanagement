@@ -6,13 +6,13 @@
         # Calls the Kafka Bridge consumer endpoint
         urls:
           - "http://kafka-bridge-kafka.apps.sno.int.apac-tech-lab.net/topics/config-alerts"
-        delay: 5  # Polls every 5 seconds
+        delay: 10  # Polls every 5 seconds
         method: GET
         headers:
           Accept: "application/vnd.kafka.json.v2+json"
   rules:
     - name: Debug print all raw events
-      condition: event.message.event is search("CRITICAL")
+      condition: event.message.event is defined
       action:
         debug:
           msg: "{{ event }}"  # <-- Natively exposes the entire structured payload
