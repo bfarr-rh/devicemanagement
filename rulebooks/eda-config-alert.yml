@@ -10,7 +10,7 @@
         group_id: eda-consumer-group
   rules:
     - name: Debug print all raw events
-      condition: event.payload.message is defined
+      condition: event.body.event is search("CRITICAL")
       action:
-        debug:
-          msg: "{{ event.payload.message }}"  # <-- Natively exposes the entire structured payload
+        print_event:
+          pretty: true
