@@ -48,8 +48,8 @@
         cmd: "git diff --exit-code origin/{{ baseline_branch }} -- {{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.xml"
       args:
         chdir: "{{ repo_dir }}"
-      failed_when: git_diff_status.rc not in [0, 1]
-      changed_when: git_diff_status.rc == 1
+      failed_when: git_diff_result.rc not in [0, 1]
+      changed_when: git_diff_result.rc == 1
       register: git_diff_result
       delegate_to: localhost
       connection: local
@@ -71,7 +71,7 @@
           target_kafka_topic: "config-alerts"
       delegate_to: localhost
       connection: local
-      when: git_diff_status.rc == 1
+      when: git_diff_result.rc == 1
     - name: Save the diff output into a structured JSON file
       ansible.builtin.copy:
         content: "{{ json_output | to_nice_json }}"
