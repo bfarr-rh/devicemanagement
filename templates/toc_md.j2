@@ -6,7 +6,8 @@
 {% for host in groups[group] %}
 - [{{ host }}]({{ group }}/{{ host }}/{{ host }}-config.xml)
 
-{% set diff_data = lookup('file', '{{ group }}/{{ host }}/{{ host }}-config.json') | from_json %}
+{% set file_path = group ~ '/' ~ host ~ '/' ~ host ~ '-config.json' %}
+{% set diff_data = lookup('file', file_path) | from_json %}
 {% if diff_data.diff | length > 0 %}
 ## Changed
 {% for line in diff_data.diff %}
