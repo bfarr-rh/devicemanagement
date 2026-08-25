@@ -16,17 +16,17 @@
       delegate_to: localhost
       connection: local
       run_once: true
-   - name: Fetch baseline branch
-     ansible.builtin.command: "git fetch origin {{ baseline_branch }}"
-     args:
-       chdir: "{{ repo_dir }}"
+    - name: Fetch baseline branch
+      ansible.builtin.command: "git fetch origin {{ baseline_branch }}"
+      args:
+        chdir: "{{ repo_dir }}"
       register: git_fetch_baseline
-     changed_when: "git_fetch_baseline.stderr != ''"
-     environment:
+      changed_when: "git_fetch_baseline.stderr != ''"
+      environment:
         GIT_SSL_NO_VERIFY: "true"
-     delegate_to: localhost
-     connection: local
-     run_once: true
+      delegate_to: localhost
+      connection: local
+      run_once: true
     - name: Retrieve running configuration
       ansible.netcommon.netconf_get:
         source: running
