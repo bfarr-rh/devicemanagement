@@ -62,6 +62,7 @@
         status_code: 
           - 200
           - 204 
+        validate_certs: false
         headers:
           Content-Type: "application/vnd.kafka.json.v2+json"
           Accept: "application/vnd.kafka.v2+json"
