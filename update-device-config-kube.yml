@@ -3,6 +3,7 @@
   gather_facts: false
   vars:
     repo_dir: "/runner/project/devicedata"
+    repo_compliance_dir: "/runner/project/device_compliance"
     version_prefix: "v1.0.0"
     baseline_branch: "baseline"
     target_kafka_topic: "config-alerts"
@@ -12,6 +13,16 @@
         repo: "https://github.com/bfarr-rh/devicedata.git"
         version: main
         dest: "{{ repo_dir }}"
+      environment:
+        GIT_SSL_NO_VERIFY: "true"
+      delegate_to: localhost
+      connection: local
+      run_once: true
+    - name: Pull Compliance rules
+      ansible.builtin.git:
+        repo: "https://github.com/bfarr-rh/device_compliance.git"
+        version: master
+        dest: "{{ repo_compliance_dir }}"
       environment:
         GIT_SSL_NO_VERIFY: "true"
       delegate_to: localhost
