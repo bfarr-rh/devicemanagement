@@ -120,7 +120,7 @@
           group: "{{ group_names[0] }}"
           host: "{{ inventory_hostname }}"
           diff: "{{ git_diff_result.stdout.split('\n') }}"
-          compliance: "{{ auth_status }}"
+          auth_status: "{{ auth_status }}"
       delegate_to: localhost
       connection: local
     - name: Ensure all previous tasks finish on all hosts
