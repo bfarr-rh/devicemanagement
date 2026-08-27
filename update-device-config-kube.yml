@@ -86,6 +86,15 @@
       connection: local
       when: git_diff_result.rc == 1
       register: kafka_curl_output
+    - name: 1. Ingest Auth compliance rules for the group
+      ansible.builtin.slurp:
+        src: "{{ repo_compliance_dir }}/{{ group_names[0] }}/auth.json"
+      register: slurped_compliance_rules_json
+      ignore_errors: true
+    - name: Process data only if the file was found successfully
+      ansible.builtin.set_fact:
+        compliance_rules: "{{ slurped_compliance_rules_json | b64decode | from_json }}"
+      when: slurped_compliance_rules_json.failed is not defined or not slurped_compliance_rules_json.failed
     - name: Save the diff output into a structured JSON file
       ansible.builtin.copy:
         content: "{{ json_output | to_nice_json }}"
