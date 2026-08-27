@@ -100,11 +100,16 @@
         - slurped_compliance_rules_json.failed is not defined or not slurped_compliance_rules_json.failed
     - name: Convert XML string to an Ansible dictionary
       ansible.builtin.set_fact:
-        xml_dict: "{{ config_xml | ansible.utils.from_xml }}"
+        config_xml_dict: "{{ config_xml | ansible.utils.from_xml }}"
+      when: compliance_rules is defined
+    - name: Determine compliance state and set fact
+      ansible.builtin.set_fact:
+        is_auth_compliant: >-
+          {{ config_xml_dict | json_query(compliance_rules.rules[0].json-query-rule }}
       when: compliance_rules is defined
     - name: Debug the parsed dictionary output
       ansible.builtin.debug:
-        var: xml_dict
+        var: is_auth_compliant
       when: compliance_rules is defined
     - name: Save the diff output into a structured JSON file
       ansible.builtin.copy:
