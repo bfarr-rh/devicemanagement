@@ -115,6 +115,11 @@
           {% endfor %}
           {{ ns.current }}
       when: compliance_rules is defined
+    - name: Inspect exact values and data types
+      ansible.builtin.debug:
+        msg: 
+        - "Extracted Value: >>>{{ extracted_value }}<<< | Type: {{ extracted_value | type_debug }}"
+        - "Expected Value: >>>{{ compliance_rules.rules[0].expected_value }}<<< | Type: {{ compliance_rules.rules[0].expected_value | type_debug }}"
     - name: Attempt to evaluate compliance
       block:
         - name: Set compliant fact if key matches exactly
