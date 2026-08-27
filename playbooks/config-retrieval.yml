@@ -1,1 +1,181 @@
-
+- name: Gather and local-save remote host facts
+  hosts: srlinux
+  gather_facts: false
+  vars:
+    repo_dir: "/runner/project/devicedata"
+    repo_compliance_dir: "/runner/project/device_compliance"
+    repo_compliance_golden_rules_dir: "/runner/project/device_compliance/golden_config/groups"
+    version_prefix: "v1.0.0"
+    baseline_branch: "baseline"
+    target_kafka_topic: "config-alerts"
+  tasks:
+    - name: Pull latest changes
+      ansible.builtin.git:
+        repo: "https://github.com/bfarr-rh/devicedata.git"
+        version: main
+        dest: "{{ repo_dir }}"
+      environment:
+        GIT_SSL_NO_VERIFY: "true"
+      delegate_to: localhost
+      connection: local
+      run_once: true
+    - name: Pull Compliance rules
+      ansible.builtin.git:
+        repo: "https://github.com/bfarr-rh/device_compliance.git"
+        version: master
+        dest: "{{ repo_compliance_dir }}"
+      environment:
+        GIT_SSL_NO_VERIFY: "true"
+      delegate_to: localhost
+      connection: local
+      run_once: true
+    - name: Retrieve running configuration
+      ansible.netcommon.netconf_get:
+        source: running
+        display: xml
+      register: config_raw
+    - name: Pretty print XML using local system tools
+      ansible.builtin.shell: "echo '{{ config_raw.output }}' | xmllint --format -"
+      delegate_to: localhost
+      connection: local
+      register: local_xml
+    - name: Save formatted XML
+      ansible.builtin.set_fact:
+        config_xml: "{{ local_xml.stdout }}"
+    - name: Create configuration directory
+      ansible.builtin.file:
+        path: "{{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+      connection: local
+    - name: Save gathered facts to JSON files on the control node
+      ansible.builtin.copy:
+        content: "{{ config_xml }}"
+        dest:  "{{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.xml"
+        mode: '0644'
+      delegate_to: localhost
+      connection: local
+    - name: Run git diff for target file in main against baseline branch
+      ansible.builtin.shell:
+        cmd: "git diff --exit-code origin/{{ baseline_branch }} -- {{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.xml"
+      args:
+        chdir: "{{ repo_dir }}"
+      failed_when: git_diff_result.rc not in [0, 1]
+      changed_when: git_diff_result.rc == 1
+      register: git_diff_result
+      delegate_to: localhost
+      connection: local
+    - name: Send event to Kafka via REST Proxy (curl)
+      ansible.builtin.shell:
+        cmd: >
+          curl -X POST
+          -H "Content-Type: application/vnd.kafka.json.v2+json"
+          -H "Accept: application/vnd.kafka.v2+json"
+          -d '{{ kafka_payload | to_json }}'
+          "http://kafka-bridge-kafka.apps.sno.int.apac-tech-lab.net/topics/{{ target_kafka_topic }}"
+      vars:
+        kafka_payload:
+          records:
+            - value:
+                datetime: "{{ now(fmt='%Y-%m-%d-%H:%M:%S') }}"
+                group: "{{ group_names[0] }}"
+                host: "{{ inventory_hostname }}"
+                event: "CRITICAL - Configuration does not match baseline"
+                diff: "{{ git_diff_result.stdout.split('\n') }}"
+      delegate_to: localhost
+      connection: local
+      when: git_diff_result.rc == 1
+      register: kafka_curl_output
+    - name: 1. Ingest Auth compliance rules for the group
+      ansible.builtin.slurp:
+        src: "{{ repo_compliance_golden_rules_dir }}/{{ group_names[0] }}/auth.json"
+      register: slurped_compliance_rules_json
+      ignore_errors: true
+    - name: Process data only if the file was found successfully
+      ansible.builtin.set_fact:
+        compliance_rules: "{{ slurped_compliance_rules_json.content | b64decode | from_json }}"
+      when: 
+        - slurped_compliance_rules_json.content is defined
+        - slurped_compliance_rules_json.failed is not defined or not slurped_compliance_rules_json.failed
+    - name: Convert XML string to an Ansible dictionary
+      ansible.builtin.set_fact:
+        config_xml_dict: "{{ config_xml | ansible.utils.from_xml }}"
+      when: compliance_rules is defined
+    - name: Execute sequence of tasks for each rule in the list
+      ansible.builtin.include_tasks:
+        file: "./playbooks/evaluate_rule.yml"
+      loop: "{{ compliance_rules.rules }}"
+      loop_control:
+        # Cleans up the AAP output view by labeling each loop step by its rule name
+        label: "{{ item.name }}"
+      when: compliance_rules is defined
+    - name: Save the diff output into a structured JSON file
+      ansible.builtin.copy:
+        content: "{{ json_output | to_nice_json }}"
+        dest: "{{ repo_dir }}/{{ group_names[0] }}/{{ inventory_hostname }}/{{ inventory_hostname }}-config.json"
+      vars:
+        json_output:
+          datetime: "{{ now(fmt='%Y-%m-%d-%H:%M:%S') }}"
+          group: "{{ group_names[0] }}"
+          host: "{{ inventory_hostname }}"
+          diff: "{{ git_diff_result.stdout.split('\n') }}"
+          auth_status: "{{ auth_status }}"
+      delegate_to: localhost
+      connection: local
+    - name: Ensure all previous tasks finish on all hosts
+      ansible.builtin.meta: flush_handlers
+    - name: Configure Git credentials
+      ansible.builtin.shell: |
+        git config credential.helper store
+        printf "protocol=https\nhost=github.com\nusername={{ git_username }}\npassword={{ git_token }}\n" | git credential approve
+      args:
+        chdir: "{{ repo_dir }}"
+      delegate_to: localhost
+      connection: local
+      run_once: true
+    - name: Configure Git credentials
+      ansible.builtin.shell: |
+        git remote set-url origin https://{{ git_username }}:{{ git_token }}@://github.com/devicedata.git
+      args:
+        chdir: "{{ repo_dir }}"
+      delegate_to: localhost
+      connection: local
+      run_once: true
+    - name: Configure Git credentials name
+      ansible.builtin.shell: |
+        git config user.name {{ git_username }}
+        git config user.email "ansible@example.com"
+      args:
+        chdir: "{{ repo_dir }}"
+      delegate_to: localhost
+      connection: local
+      run_once: true
+    - name: Git add
+      ansible.builtin.command:
+        cmd: git add .
+        chdir: "{{ repo_dir }}"
+      delegate_to: localhost
+      run_once: true
+      connection: local
+    - name: Git commit
+      ansible.builtin.command:
+        cmd: git commit -m "Update files from Ansible"
+        chdir: "{{ repo_dir }}"
+      register: git_commit
+      failed_when:
+      - git_commit.rc != 0
+      - "'nothing to commit' not in git_commit.stdout"
+      delegate_to: localhost
+      run_once: true
+      connection: local
+    - name: Git push
+      ansible.builtin.command:
+        cmd: git push https://{{ git_username }}:{{ git_token }}@github.com/bfarr-rh/devicedata.git main
+        chdir: "{{ repo_dir }}"
+      when: git_commit.rc == 0
+      delegate_to: localhost
+      environment:
+        GIT_SSL_NO_VERIFY: "true"
+      run_once: true
+      connection: local
