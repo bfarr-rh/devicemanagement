@@ -124,7 +124,7 @@
       block:
         - name: Set compliant fact if key matches exactly
           ansible.builtin.set_fact:
-            auth_status: "{{ 'COMPLIANT' if extracted_value == compliance_rules.rules[0].expected_value else 'NON-COMPLIANT' }}"
+            auth_status: "{{ 'COMPLIANT' if extracted_value | string | trim == compliance_rules.rules[0].expected_value else 'NON-COMPLIANT' }}"
       rescue:
         - name: Handle missing keys or bad dictionary structures
           ansible.builtin.set_fact:
