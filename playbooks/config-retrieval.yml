@@ -81,7 +81,7 @@
                 datetime: "{{ now(fmt='%Y-%m-%d-%H:%M:%S') }}"
                 group: "{{ group_names[0] }}"
                 host: "{{ inventory_hostname }}"
-                event: "CRITICAL - Configuration does not match baseline"
+                event: "MAJOR - Configuration does not match baseline"
                 diff: "{{ git_diff_result.stdout.split('\n') }}"
       delegate_to: localhost
       connection: local
@@ -110,6 +110,26 @@
         # Cleans up the AAP output view by labeling each loop step by its rule name
         label: "{{ item.name }}"
       when: compliance_rules is defined
+    - name: Send event to Kafka via REST Proxy (curl)
+      ansible.builtin.shell:
+        cmd: >
+          curl -X POST
+          -H "Content-Type: application/vnd.kafka.json.v2+json"
+          -H "Accept: application/vnd.kafka.v2+json"
+          -d '{{ kafka_payload | to_json }}'
+          "http://kafka-bridge-kafka.apps.sno.int.apac-tech-lab.net/topics/{{ target_kafka_topic }}"
+      vars:
+        kafka_payload:
+          records:
+            - value:
+                datetime: "{{ now(fmt='%Y-%m-%d-%H:%M:%S') }}"
+                group: "{{ group_names[0] }}"
+                host: "{{ inventory_hostname }}"
+                event: "CRITICAL- Configuration is NOT COMPLIANT"
+                diff: "{{ git_diff_result.stdout.split('\n') }}"
+      delegate_to: localhost
+      connection: local
+      when: auth_status == "NON-COMPLIANT"
     - name: Save the diff output into a structured JSON file
       ansible.builtin.copy:
         content: "{{ json_output | to_nice_json }}"
