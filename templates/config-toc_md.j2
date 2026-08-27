@@ -1,0 +1,13 @@
+# Configuration Table of Contents
+
+Total Devices Discovered: {{ found_files.files | length }}
+
+| Host / Device | Baseline Differences | Time Compared | Auth Compliance
+| :--- | :--- | :--- | :--- |
+{% for file in found_files.files %}
+{% set meta_file_path = file.path | regex_replace('\.xml$', '.json') %}
+{% set raw_content = lookup('ansible.builtin.file', meta_file_path, errors='ignore') | default('{"diff": []}', true) %}
+{% set meta_data = raw_content | from_json %}
+| {{file.path}} | {% if meta_data.diff | length > 0 and meta_data.diff[0] != "" %}Yes{% else %}No changes{% endif %} | {{meta_data.datetime}} | {{ meta_data.auth_status }} |
+{% endfor %}
+
