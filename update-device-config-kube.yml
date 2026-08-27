@@ -105,7 +105,7 @@
     - name: Determine compliance state and set fact
       ansible.builtin.set_fact:
         is_auth_compliant: >-
-          {{ config_xml_dict | json_query(compliance_rules.rules[0].json-query-rule }}
+          {{ config_xml_dict | json_query(compliance_rules.rules[0].json-query-rule) }}
       when: compliance_rules is defined
     - name: Debug the parsed dictionary output
       ansible.builtin.debug:
