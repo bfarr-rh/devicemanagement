@@ -102,14 +102,19 @@
       ansible.builtin.set_fact:
         config_xml_dict: "{{ config_xml | ansible.utils.from_xml }}"
       when: compliance_rules is defined
-    - name: Determine compliance state and set fact
-      ansible.builtin.set_fact:
-        is_auth_compliant: >-
-          {{ config_xml_dict | json_query(compliance_rules.rules[0].jsonquery) }}
+    - name: Attempt to evaluate compliance
+      block:
+        - name: Set compliant fact if key matches exactly
+          ansible.builtin.set_fact:
+            auth_status: "{{ 'COMPLIANT' if config_xml_dict.data.system.aaa.authentication['authentication-method'] == 'local' else 'NON-COMPLIANT' }}"
+      rescue:
+        - name: Handle missing keys or bad dictionary structures
+          ansible.builtin.set_fact:
+            auth_status: "NON-COMPLIANT (Missing configuration paths)"
       when: compliance_rules is defined
     - name: Debug the parsed dictionary output
       ansible.builtin.debug:
-        var: is_auth_compliant
+        var: auth_status
       when: compliance_rules is defined
     - name: Save the diff output into a structured JSON file
       ansible.builtin.copy:
