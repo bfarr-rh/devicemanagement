@@ -9,7 +9,7 @@
 {% set file_path = 'devicedata' ~ '/' ~ group ~ '/' ~ host ~ '/' ~ host ~ '-config.json' %}
 {% set raw_content = lookup('ansible.builtin.file', file_path, errors='ignore') | default('{"diff": []}', true) %}
 {% set diff_data = raw_content | from_json %}
-| [{{ host }}]({{ group }}/{{ host }}/{{ host }}-config.xml) | {% if diff_data.diff | length > 0 %}Yes{% else %}No changes{% endif %} | {{diff_data.datetime}} | |
+| [{{ host }}]({{ group }}/{{ host }}/{{ host }}-config.xml) | {% if diff_data.diff | length > 0 and diff_data.diff[0] != "" %}Yes{% else %}No changes{% endif %} | {{diff_data.datetime}} | |
 {% endfor %}
 
 {% endif %}
