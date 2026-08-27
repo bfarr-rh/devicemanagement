@@ -3,7 +3,7 @@
   ansible.builtin.set_fact:
     extracted_value: >-
       {% set ns = namespace(current=config_xml_dict) %}
-      {% for key in compliance_rules.rules[0].path_string.split('.') %}
+      {% for key in item.path_string.split('.') %}
         {% if ns.current is mapping and key in ns.current %}
           {% set ns.current = ns.current[key] %}
         {% else %}
@@ -16,7 +16,7 @@
   block:
     - name: Set compliant fact if key matches exactly
       ansible.builtin.set_fact:
-        auth_status: "{{ 'COMPLIANT' if extracted_value | string | trim == compliance_rules.rules[0].expected_value else 'NON-COMPLIANT' }}"
+        auth_status: "{{ 'COMPLIANT' if extracted_value | string | trim == item.expected_value else 'NON-COMPLIANT' }}"
   rescue:
     - name: Handle missing keys or bad dictionary structures
       ansible.builtin.set_fact:
