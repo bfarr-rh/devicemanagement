@@ -17,7 +17,7 @@
       run_once: true
     - name: Generate table of contents
       ansible.builtin.template:
-        src: templates/toc_md.j2
+        src: ../templates/toc_md.j2
         dest: "{{ repo_dir }}/README.md"
       delegate_to: localhost
       connection: local
