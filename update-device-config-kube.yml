@@ -102,38 +102,13 @@
       ansible.builtin.set_fact:
         config_xml_dict: "{{ config_xml | ansible.utils.from_xml }}"
       when: compliance_rules is defined
-    - name: Dynamically extract the target field value
-      ansible.builtin.set_fact:
-        extracted_value: >-
-          {% set ns = namespace(current=config_xml_dict) %}
-          {% for key in compliance_rules.rules[0].path_string.split('.') %}
-            {% if ns.current is mapping and key in ns.current %}
-              {% set ns.current = ns.current[key] %}
-            {% else %}
-              {% set ns.current = none %}
-            {% endif %}
-          {% endfor %}
-          {{ ns.current }}
-      when: compliance_rules is defined
-    - name: Inspect exact values and data types
-      ansible.builtin.debug:
-        msg: 
-        - "Extracted Value: >>>{{ extracted_value }}<<< | Type: {{ extracted_value | type_debug }}"
-        - "Expected Value: >>>{{ compliance_rules.rules[0].expected_value }}<<< | Type: {{ compliance_rules.rules[0].expected_value | type_debug }}"
-    - name: Attempt to evaluate compliance
-      block:
-        - name: Set compliant fact if key matches exactly
-          ansible.builtin.set_fact:
-            auth_status: "{{ 'COMPLIANT' if extracted_value | string | trim == compliance_rules.rules[0].expected_value else 'NON-COMPLIANT' }}"
-      rescue:
-        - name: Handle missing keys or bad dictionary structures
-          ansible.builtin.set_fact:
-            auth_status: "NON-COMPLIANT (Missing configuration paths)"
-      when: compliance_rules is defined
-    - name: Debug the parsed dictionary output
-      ansible.builtin.debug:
-        var: auth_status
-      when: compliance_rules is defined
+    - name: Execute sequence of tasks for each rule in the list
+      ansible.builtin.include_tasks:
+        file: playbooks/evaluate_rule.yml
+      loop: "{{ compliance_rules.rules }}"
+      loop_control:
+        # Cleans up the AAP output view by labeling each loop step by its rule name
+        label: "{{ item.name }}"
     - name: Save the diff output into a structured JSON file
       ansible.builtin.copy:
         content: "{{ json_output | to_nice_json }}"
