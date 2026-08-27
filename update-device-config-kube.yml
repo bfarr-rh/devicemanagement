@@ -94,8 +94,10 @@
       ignore_errors: true
     - name: Process data only if the file was found successfully
       ansible.builtin.set_fact:
-        compliance_rules: "{{ slurped_compliance_rules_json | b64decode | from_json }}"
-      when: slurped_compliance_rules_json.failed is not defined or not slurped_compliance_rules_json.failed
+        compliance_rules: "{{ slurped_compliance_rules_json.content | b64decode | from_json }}"
+      when: 
+        - slurped_compliance_rules_json.content is defined
+        - slurped_compliance_rules_json.failed is not defined or not slurped_compliance_rules_json.failed
     - name: Save the diff output into a structured JSON file
       ansible.builtin.copy:
         content: "{{ json_output | to_nice_json }}"
