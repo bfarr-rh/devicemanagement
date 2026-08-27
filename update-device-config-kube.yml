@@ -98,6 +98,19 @@
       when: 
         - slurped_compliance_rules_json.content is defined
         - slurped_compliance_rules_json.failed is not defined or not slurped_compliance_rules_json.failed
+    - name: Target and extract the specific structural block
+      community.general.xml:
+        xmlstring: "{{ config_xml }}"
+        xpath: "{{compliance_rules.xpath}}"
+        content: xml  # Crucial: Tells the module to extract the whole XML subtree
+      register: extracted_block_result
+      when: 
+        - compliance_rules is defined
+    - name: Print out the raw XML block
+      ansible.builtin.debug:
+        var: extracted_block_result
+       when: 
+        - extracted_block_result is defined
     - name: Save the diff output into a structured JSON file
       ansible.builtin.copy:
         content: "{{ json_output | to_nice_json }}"
