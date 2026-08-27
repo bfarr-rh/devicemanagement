@@ -21,7 +21,9 @@
     - name: Handle missing keys or bad dictionary structures
       ansible.builtin.set_fact:
         auth_status: "NON-COMPLIANT (Missing configuration paths)"
-  when: compliance_rules is defined
+  when: 
+    - compliance_rules is defined
+    - auth_status is not defined or auth_status == 'COMPLIANT'
 - name: Debug the parsed dictionary output
   ansible.builtin.debug:
     var: auth_status
