@@ -3,7 +3,7 @@
 {% for group in groups %}
 {% if group not in ['all', 'local', 'ungrouped'] %}
 ## {{ group }}
-| Host / Device | Baseline Differences | Time Compared | Compliant
+| Host / Device | Baseline Differences | Time Compared | Auth Compliance
 | :--- | :--- | :--- | :--- |
 {% for host in groups[group] %}
 {% set file_path = 'devicedata' ~ '/' ~ group ~ '/' ~ host ~ '/' ~ host ~ '-config.json' %}
