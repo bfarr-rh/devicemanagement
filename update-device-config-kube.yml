@@ -104,7 +104,7 @@
       when: compliance_rules is defined
     - name: Execute sequence of tasks for each rule in the list
       ansible.builtin.include_tasks:
-        file: {{repo_dir}}/playbooks/evaluate_rule.yml
+        file: "{{repo_dir}}/playbooks/evaluate_rule.yml"
       loop: "{{ compliance_rules.rules }}"
       loop_control:
         # Cleans up the AAP output view by labeling each loop step by its rule name
