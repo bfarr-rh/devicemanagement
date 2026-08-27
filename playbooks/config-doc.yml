@@ -15,6 +15,13 @@
       delegate_to: localhost
       connection: local
       run_once: true
+    - name: Dynamically find all XML files recursively
+      ansible.builtin.find:
+        paths: "{{ repo_dir }}"
+        recurse: true              # <--- This activates deep recursion
+        patterns: "*.xml"          # <--- Filters explicitly by extension
+        file_type: file            # <--- Excludes directory names from results
+      register: found_files
     - name: Generate table of contents
       ansible.builtin.template:
         src: ../templates/toc_md.j2
