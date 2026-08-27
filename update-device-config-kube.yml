@@ -104,13 +104,11 @@
         xpath: "{{compliance_rules.xpath}}"
         content: xml  # Crucial: Tells the module to extract the whole XML subtree
       register: extracted_block_result
-      when: 
-        - compliance_rules is defined
+      when: compliance_rules is defined
     - name: Print out the raw XML block
       ansible.builtin.debug:
         var: extracted_block_result
-       when: 
-        - extracted_block_result is defined
+      when: extracted_block_result is defined
     - name: Save the diff output into a structured JSON file
       ansible.builtin.copy:
         content: "{{ json_output | to_nice_json }}"
