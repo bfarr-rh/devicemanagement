@@ -60,7 +60,7 @@
             
         done
         
-        echo "The file was never compliant in any historical tag."
+        echo "The file was never NON-COMPLIANT in any historical tag."
         exit 1
       args:
         chdir: "{{ repo_dir }}"
