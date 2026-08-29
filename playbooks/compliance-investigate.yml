@@ -38,7 +38,7 @@
         
         # Find the latest commit where the "COMPLIANT" string count changed
         # %H = Commit Hash, %ci = Commit Date
-        commit_info=$(git log -S "COMPLIANT" --pretty=format:"%H|%ci" -n 1 -- "{{ _group }}/{{ _host }}/{{ _host }}-config.json")
+        commit_info=$(git log -G "COMPLIANT" --pretty=format:"%H|%ci" -n 1 -- "{{ _group }}/{{ _host }}/{{ _host }}-config.json")
         
         if [ -z "$commit_info" ]; then
             echo "The string 'COMPLIANT' was never found in the file's history."
