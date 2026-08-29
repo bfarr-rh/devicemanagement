@@ -40,8 +40,8 @@
 
           
         # Loop backwards from the newest tag to the oldest
-        for ((i=${#tags[@]}-1; i>=0; i--)); do
-            tag="${tags[i]}"
+        for ((i=$(#tags[@])-1; i>=0; i--)); do
+            tag="$(tags[i])"
             
             # Stream the file at this tag. If it does NOT contain the string, it is compliant.
             fname="{{ _group }}/{{ _host }}/{{ _host }}-config.json"
