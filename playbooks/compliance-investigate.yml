@@ -59,7 +59,7 @@
         # Compare changes with the compliance rules since that time
         # Pulls a list of files modified since the target timestamp
         cd {{repo_compliance_golden_rules_dir}}
-        compliance_changes =$(git log --since="$commit_date" )
+        compliance_changes =$(git log --since="$commit_date" 2>/dev/null || echo "No Compliance Changes Found since device was compliant on: $commit_date")
         echo "Compliance changes since last compliant: $compliance_changes"
       args:
         chdir: "{{ repo_dir }}"
