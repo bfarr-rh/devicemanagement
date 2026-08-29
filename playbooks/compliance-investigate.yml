@@ -45,16 +45,8 @@
             
             # Stream the file at this tag. If it does NOT contain the string, it is compliant.
             fname="{{ _group }}/{{ _host }}/{{ _host }}-config.json"
-            
-            if ! git show "$tag:$fname" 2>/dev/null | grep -q "NON-COMPLIANT"; then
+            echo $fname
 
-                # Extract the exact commit date for this specific tag
-                tag_date=$(git log -1 --format="%ci" "$tag")
-                
-                echo "Last Compliant Tag: $tag"
-                echo "Date of Compliance: $tag_date"
-                exit 0
-            fi
         done
         
         echo "The file was never compliant in any historical tag."
