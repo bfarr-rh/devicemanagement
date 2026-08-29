@@ -38,7 +38,8 @@
         # Get all tags sorted chronologically (oldest to newest)
         tags=($(git tag --sort=creatordate))
 
-          
+        echo $tags
+        
         # Loop backwards from the newest tag to the oldest
         for ((i=$(#tags[@])-1; i>=0; i--)); do
             tag="$(tags[i])"
@@ -47,6 +48,16 @@
             fname="{{ _group }}/{{ _host }}/{{ _host }}-config.json"
             echo $fname
 
+           if ! git show "$tag:$fname" 2>/dev/null | grep -q "NON-COMPLIANT"; then
+
+                # Extract the exact commit date for this specific tag
+                tag_date=$(git log -1 --format="%ci" "$tag")
+                
+                echo "Last Compliant Tag: $tag"
+                echo "Date of Compliance: $tag_date"
+                exit 0
+            fi
+            
         done
         
         echo "The file was never compliant in any historical tag."
