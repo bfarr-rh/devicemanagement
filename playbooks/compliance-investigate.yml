@@ -33,40 +33,33 @@
       run_once: true
     - name: Locate the most recent tag when the file was compliant
       ansible.builtin.shell: |
+        set -o pipefail
         git fetch --tags --force
         
-        # Get all tags sorted chronologically (oldest to newest)
-        tags=($(git tag --sort=creatordate))
-
-        echo $tags
+        # Find the latest commit where the "NON-COMPLIANT" string count changed
+        # %H = Commit Hash, %ci = Commit Date
+        commit_info=$(git log -S "NON-COMPLIANT" --pretty=format:"%H|%ci" -n 1 -- "{{ _group }}/{{ _host }}/{{ _host }}-config.json")
         
-        # Loop backwards from the newest tag to the oldest
-        for ((i=$(#tags[@])-1; i>=0; i--)); do
-            tag="$(tags[i])"
-            
-            # Stream the file at this tag. If it does NOT contain the string, it is compliant.
-            fname="{{ _group }}/{{ _host }}/{{ _host }}-config.json"
-            echo $fname
-
-           if ! git show "$tag:$fname" 2>/dev/null | grep -q "NON-COMPLIANT"; then
-
-                # Extract the exact commit date for this specific tag
-                tag_date=$(git log -1 --format="%ci" "$tag")
-                
-                echo "Last Compliant Tag: $tag"
-                echo "Date of Compliance: $tag_date"
-                exit 0
-            fi
-            
-        done
+        if [ -z "$commit_info" ]; then
+            echo "The string 'NON-COMPLIANT' was never found in the file's history."
+            exit 0
+        fi
         
-        echo "The file was never NON-COMPLIANT in any historical tag."
-        exit 1
+        # Split the hash and date
+        commit_hash=$(echo "$commit_info" | cut -d'|' -f1)
+        commit_date=$(echo "$commit_info" | cut -d'|' -f2)
+        
+        # Find the closest tag associated with or following that commit
+        closest_tag=$(git describe --tags --abbrev=0 "$commit_hash" 2>/dev/null || echo "No Tag Found")
+        
+        echo "Last Compliance Change Commit: $commit_hash"
+        echo "Associated Tag: $closest_tag"
+        echo "Change Date: $commit_date"
+            
       args:
         chdir: "{{ repo_dir }}"
         executable: /bin/bash
       register: compliance_check
-      failed_when: false
       changed_when: false
       delegate_to: localhost
       connection: local
