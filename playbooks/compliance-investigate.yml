@@ -58,6 +58,7 @@
 
         # Compare changes with the compliance rules since that time
         # Pulls a list of files modified since the target timestamp
+        chdir {{repo_compliance_golden_rules_dir}}
         compliance_changes =$(git log --since="$commit_date" )
         echo "Compliance changes since last compliant: $compliance_changes"
       args:
