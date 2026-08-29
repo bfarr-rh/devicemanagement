@@ -31,6 +31,7 @@
       run_once: true
     - name: Locate the most recent tag when the file was compliant
       ansible.builtin.shell: |
+        {% raw %}
         set -o pipefail
         
         git fetch --tags --force
@@ -41,10 +42,11 @@
         # Loop backwards from the newest tag to the oldest
         for ((i=${#tags[@]}-1; i>=0; i--)); do
             tag="${tags[i]}"
-            
+        {% endraw %}
             # Stream the file at this tag. If it does NOT contain the string, it is compliant.
             if ! git show "$tag:{{ _group }}/{{ _host }}/{{ _host }}-config.json" 2>/dev/null | grep -q "NON-COMPLIANT"; then
-                
+
+        {% raw %}
                 # Extract the exact commit date for this specific tag
                 tag_date=$(git log -1 --format="%ci" "$tag")
                 
@@ -56,6 +58,7 @@
         
         echo "The file was never compliant in any historical tag."
         exit 1
+         {% endraw %}
       args:
         chdir: "{{ repo_dir }}"
         executable: /bin/bash
