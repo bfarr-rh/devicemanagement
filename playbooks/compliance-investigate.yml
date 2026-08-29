@@ -61,6 +61,8 @@
         cd {{repo_compliance_golden_rules_dir}}
         compliance_changes=$(git log --since="$commit_date" --pretty=format:"%cd | %an | %s" 2>/dev/null || echo "No Compliance Changes Found")
         echo "Compliance changes since last compliant on $commit_date : $compliance_changes"
+      environment:
+        GIT_SSL_NO_VERIFY: "true"
       args:
         chdir: "{{ repo_dir }}"
         executable: /bin/bash
