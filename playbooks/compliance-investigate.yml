@@ -32,6 +32,7 @@
     - name: Locate the most recent tag when the file was compliant
       ansible.builtin.shell: |
         set -o pipefail
+        
         git fetch --tags --force
         
         # Get all tags sorted chronologically (oldest to newest)
