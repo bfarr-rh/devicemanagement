@@ -14,3 +14,13 @@
       action:
         print_event:
           pretty: true
+    - name: Trigger Job Template to investigate the device
+      condition: event.body.event is search("CRITICAL")
+      actions:
+        - run_job_template:
+            name: "Compliance Investigation on Device"
+            organization: "fttx-demo"
+            job_args:
+              extra_vars:
+                _host: "{{ event.body.host }}"
+                _group: "{{ event.body.group }}"
