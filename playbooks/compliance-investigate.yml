@@ -31,17 +31,17 @@
       delegate_to: localhost
       connection: local
       run_once: true
-    - name: Locate the most recent tag when the file was compliant
+    - name: Locate the most recent tag when the file was Compliant
       ansible.builtin.shell: |
         set -o pipefail
         git fetch --tags --force
         
-        # Find the latest commit where the "NON-COMPLIANT" string count changed
+        # Find the latest commit where the "COMPLIANT" string count changed
         # %H = Commit Hash, %ci = Commit Date
-        commit_info=$(git log -S "NON-COMPLIANT" --pretty=format:"%H|%ci" -n 1 -- "{{ _group }}/{{ _host }}/{{ _host }}-config.json")
+        commit_info=$(git log -S "COMPLIANT" --pretty=format:"%H|%ci" -n 1 -- "{{ _group }}/{{ _host }}/{{ _host }}-config.json")
         
         if [ -z "$commit_info" ]; then
-            echo "The string 'NON-COMPLIANT' was never found in the file's history."
+            echo "The string 'COMPLIANT' was never found in the file's history."
             exit 0
         fi
         
@@ -55,7 +55,11 @@
         echo "Last Compliance Change Commit: $commit_hash"
         echo "Associated Tag: $closest_tag"
         echo "Change Date: $commit_date"
-            
+
+        # Compare changes with the compliance rules since that time
+        # Pulls a list of files modified since the target timestamp
+        compliance_changes =$(git log --since="$commit_date" )
+        echo "Compliance changes since last compliant: $compliance_changes"
       args:
         chdir: "{{ repo_dir }}"
         executable: /bin/bash
