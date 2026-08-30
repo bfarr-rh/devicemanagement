@@ -9,11 +9,6 @@
         topic: config-alerts
         group_id: eda-consumer-group
   rules:
-    - name: Critical Event
-      condition: event.body.event is search("CRITICAL")
-      action:
-        print_event:
-          pretty: true
     - name: Trigger Job Template to investigate the device
       condition: event.body.event is search("CRITICAL")
       actions:
@@ -24,3 +19,5 @@
               extra_vars:
                 _host: "{{ event.body.host }}"
                 _group: "{{ event.body.group }}"
+        - print_event:
+          pretty: true
