@@ -52,16 +52,24 @@
         
         # Find the closest tag associated with or following that commit
         closest_tag=$(git describe --tags --abbrev=0 "$commit_hash" 2>/dev/null || echo "No Tag Found")
-        
+        echo "============================================================"
         echo "Last Compliance Change Commit: $commit_hash"
         echo "Associated Tag: $closest_tag"
         echo "Change Date: $commit_date"
 
+        # Compare the diff with the xml config
+        commit_dd=$(git rev-list -1 --before="$commit_date_minus_1h" HEAD)
+        config_diff=$(git diff --no-ext-diff --unified=3 "$commit_dd" HEAD -- "{{ _group }}/{{ _host }}/{{ _host }}-config.xml")
+
+        echo "============================================================"
+        echo "Configuration differences since last was compliant:" $config_diff
+        echo "============================================================"
         # Compare changes with the compliance rules since that time
         # Pulls a list of files modified since the target timestamp
         cd {{repo_compliance_golden_rules_dir}}
         compliance_changes=$(git log --since="$commit_date_minus_1h" --pretty=format:"%cd | %an | %s" 2>/dev/null || echo "No Compliance Changes Found")
         echo "Compliance changes since device was last compliant on $commit_date : $compliance_changes"
+        echo "============================================================"
       environment:
         GIT_SSL_NO_VERIFY: "true"
       args:
