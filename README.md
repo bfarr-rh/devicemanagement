@@ -10,3 +10,8 @@ Playbooks
   - Runs compliance rules against config values (see https://github.com/bfarr-rh/device_compliance/blob/master/golden_config/groups/srlinux/auth.json)
 - config-doc
   - creates a table of contents against all config and runs as a second playbook as part of the workflow https://github.com/bfarr-rh/devicedata
+
+
+
+![Overview](Snip20260903_4.png)
+
